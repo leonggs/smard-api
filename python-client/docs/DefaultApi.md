@@ -10,7 +10,7 @@ Method | HTTP request | Description
 
 
 # **chart_data_filter_region_filter_copy_region_copy_resolution_timestamp_json_get**
-> TimeSeries chart_data_filter_region_filter_copy_region_copy_resolution_timestamp_json_get(filter, filter_copy, region_copy, timestamp)
+> TimeSeries chart_data_filter_region_filter_copy_region_copy_resolution_timestamp_json_get(filter, filter_copy, region, region_copy, resolution, timestamp)
 
 Zeitreihendaten
 
@@ -18,13 +18,14 @@ Zeitreihendaten nach Filter, Region und Auflösung ab Timestamp
 
 ### Example
 
-
 ```python
 import time
+import os
 from deutschland import smard
-from deutschland.smard.api import default_api
-from deutschland.smard.model.time_series import TimeSeries
+from deutschland.smard.models.time_series import TimeSeries
+from deutschland.smard.rest import ApiException
 from pprint import pprint
+
 # Defining the host is optional and defaults to https://www.smard.de/app
 # See configuration.py for a list of all supported configuration parameters.
 configuration = smard.Configuration(
@@ -33,34 +34,37 @@ configuration = smard.Configuration(
 
 
 # Enter a context with an instance of the API client
-with smard.ApiClient() as api_client:
+with smard.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = default_api.DefaultApi(api_client)
-    filter = 1223 # int | Mögliche Filter:   * `1223` - Stromerzeugung: Braunkohle   * `1224` - Stromerzeugung: Kernenergie   * `1225` - Stromerzeugung: Wind Offshore   * `1226` - Stromerzeugung: Wasserkraft   * `1227` - Stromerzeugung: Sonstige Konventionelle   * `1228` - Stromerzeugung: Sonstige Erneuerbare   * `4066` - Stromerzeugung: Biomasse   * `4067` - Stromerzeugung: Wind Onshore   * `4068` - Stromerzeugung: Photovoltaik   * `4069` - Stromerzeugung: Steinkohle   * `4070` - Stromerzeugung: Pumpspeicher   * `4071` - Stromerzeugung: Erdgas   * `410` - Stromverbrauch: Gesamt (Netzlast)   * `4359` - Stromverbrauch: Residuallast   * `4387` - Stromverbrauch: Pumpspeicher   * `4169` - Marktpreis: Deutschland/Luxemburg   * `5078` - Marktpreis: Anrainer DE/LU   * `4996` - Marktpreis: Belgien   * `4997` - Marktpreis: Norwegen 2   * `4170` - Marktpreis: Österreich   * `252` - Marktpreis: Dänemark 1   * `253` - Marktpreis: Dänemark 2   * `254` - Marktpreis: Frankreich   * `255` - Marktpreis: Italien (Nord)   * `256` - Marktpreis: Niederlande   * `257` - Marktpreis: Polen   * `258` - Marktpreis: Polen   * `259` - Marktpreis: Schweiz   * `260` - Marktpreis: Slowenien   * `261` - Marktpreis: Tschechien   * `262` - Marktpreis: Ungarn   * `3791` - Prognostizierte Erzeugung: Offshore   * `123` - Prognostizierte Erzeugung: Onshore   * `125` - Prognostizierte Erzeugung: Photovoltaik   * `715` - Prognostizierte Erzeugung: Sonstige   * `5097` - Prognostizierte Erzeugung: Wind und Photovoltaik   * `122` - Prognostizierte Erzeugung: Gesamt 
-    filter_copy = 1223 # int | Muss dem Wert von \"filter\" entsprechen. (Kaputtes API-Design) 
-    region_copy = "DE" # str | Muss dem Wert von \"region\" entsprechen. (Kaputtes API-Design) 
-    timestamp = 1 # int | 
+    api_instance = smard.DefaultApi(api_client)
+    filter = 56 # int | Mögliche Filter:   * `1223` - Stromerzeugung: Braunkohle   * `1224` - Stromerzeugung: Kernenergie   * `1225` - Stromerzeugung: Wind Offshore   * `1226` - Stromerzeugung: Wasserkraft   * `1227` - Stromerzeugung: Sonstige Konventionelle   * `1228` - Stromerzeugung: Sonstige Erneuerbare   * `4066` - Stromerzeugung: Biomasse   * `4067` - Stromerzeugung: Wind Onshore   * `4068` - Stromerzeugung: Photovoltaik   * `4069` - Stromerzeugung: Steinkohle   * `4070` - Stromerzeugung: Pumpspeicher   * `4071` - Stromerzeugung: Erdgas   * `410` - Stromverbrauch: Gesamt (Netzlast)   * `4359` - Stromverbrauch: Residuallast   * `4387` - Stromverbrauch: Pumpspeicher   * `4169` - Marktpreis: Deutschland/Luxemburg   * `5078` - Marktpreis: Anrainer DE/LU   * `4996` - Marktpreis: Belgien   * `4997` - Marktpreis: Norwegen 2   * `4170` - Marktpreis: Österreich   * `252` - Marktpreis: Dänemark 1   * `253` - Marktpreis: Dänemark 2   * `254` - Marktpreis: Frankreich   * `255` - Marktpreis: Italien (Nord)   * `256` - Marktpreis: Niederlande   * `257` - Marktpreis: Polen   * `258` - Marktpreis: Polen   * `259` - Marktpreis: Schweiz   * `260` - Marktpreis: Slowenien   * `261` - Marktpreis: Tschechien   * `262` - Marktpreis: Ungarn   * `3791` - Prognostizierte Erzeugung: Offshore   * `123` - Prognostizierte Erzeugung: Onshore   * `125` - Prognostizierte Erzeugung: Photovoltaik   * `715` - Prognostizierte Erzeugung: Sonstige   * `5097` - Prognostizierte Erzeugung: Wind und Photovoltaik   * `122` - Prognostizierte Erzeugung: Gesamt 
+    filter_copy = 56 # int | Muss dem Wert von \"filter\" entsprechen. (Kaputtes API-Design) 
+    region = 'DE' # str | Land / Regelzone / Marktgebiet:   * `DE` - Land: Deutschland   * `AT` - Land: Österreich   * `LU` - Land: Luxemburg   * `DE-LU` - Marktgebiet: DE/LU (ab 01.10.2018)   * `DE-AT-LU` - Marktgebiet: DE/AT/LU (bis 30.09.2018)   * `50Hertz` - Regelzone (DE): 50Hertz   * `Amprion`- Regelzone (DE): Amprion   * `TenneT` - Regelzone (DE): TenneT   * `TransnetBW` - Regelzone (DE): TransnetBW   * `APG` - Regelzone (AT): APG   * `Creos` - Regelzone (LU): Creos  (default to 'DE')
+    region_copy = 'region_copy_example' # str | Muss dem Wert von \"region\" entsprechen. (Kaputtes API-Design) 
+    resolution = 'hour' # str | Auflösung der Daten:   * `hour` - Stündlich   * `quarterhour` - Viertelstündlich   * `day` - Täglich   * `week` - Wöchentlich   * `month` - Monatlich   * `year` - Jährlich  (default to 'hour')
+    timestamp = 56 # int | 
 
-    # example passing only required values which don't have defaults set
     try:
         # Zeitreihendaten
-        api_response = api_instance.chart_data_filter_region_filter_copy_region_copy_resolution_timestamp_json_get(filter, filter_copy, region_copy, timestamp)
+        api_response = api_instance.chart_data_filter_region_filter_copy_region_copy_resolution_timestamp_json_get(filter, filter_copy, region, region_copy, resolution, timestamp)
+        print("The response of DefaultApi->chart_data_filter_region_filter_copy_region_copy_resolution_timestamp_json_get:\n")
         pprint(api_response)
-    except smard.ApiException as e:
+    except Exception as e:
         print("Exception when calling DefaultApi->chart_data_filter_region_filter_copy_region_copy_resolution_timestamp_json_get: %s\n" % e)
 ```
+
 
 
 ### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **filter** | **int**| Mögliche Filter:   * &#x60;1223&#x60; - Stromerzeugung: Braunkohle   * &#x60;1224&#x60; - Stromerzeugung: Kernenergie   * &#x60;1225&#x60; - Stromerzeugung: Wind Offshore   * &#x60;1226&#x60; - Stromerzeugung: Wasserkraft   * &#x60;1227&#x60; - Stromerzeugung: Sonstige Konventionelle   * &#x60;1228&#x60; - Stromerzeugung: Sonstige Erneuerbare   * &#x60;4066&#x60; - Stromerzeugung: Biomasse   * &#x60;4067&#x60; - Stromerzeugung: Wind Onshore   * &#x60;4068&#x60; - Stromerzeugung: Photovoltaik   * &#x60;4069&#x60; - Stromerzeugung: Steinkohle   * &#x60;4070&#x60; - Stromerzeugung: Pumpspeicher   * &#x60;4071&#x60; - Stromerzeugung: Erdgas   * &#x60;410&#x60; - Stromverbrauch: Gesamt (Netzlast)   * &#x60;4359&#x60; - Stromverbrauch: Residuallast   * &#x60;4387&#x60; - Stromverbrauch: Pumpspeicher   * &#x60;4169&#x60; - Marktpreis: Deutschland/Luxemburg   * &#x60;5078&#x60; - Marktpreis: Anrainer DE/LU   * &#x60;4996&#x60; - Marktpreis: Belgien   * &#x60;4997&#x60; - Marktpreis: Norwegen 2   * &#x60;4170&#x60; - Marktpreis: Österreich   * &#x60;252&#x60; - Marktpreis: Dänemark 1   * &#x60;253&#x60; - Marktpreis: Dänemark 2   * &#x60;254&#x60; - Marktpreis: Frankreich   * &#x60;255&#x60; - Marktpreis: Italien (Nord)   * &#x60;256&#x60; - Marktpreis: Niederlande   * &#x60;257&#x60; - Marktpreis: Polen   * &#x60;258&#x60; - Marktpreis: Polen   * &#x60;259&#x60; - Marktpreis: Schweiz   * &#x60;260&#x60; - Marktpreis: Slowenien   * &#x60;261&#x60; - Marktpreis: Tschechien   * &#x60;262&#x60; - Marktpreis: Ungarn   * &#x60;3791&#x60; - Prognostizierte Erzeugung: Offshore   * &#x60;123&#x60; - Prognostizierte Erzeugung: Onshore   * &#x60;125&#x60; - Prognostizierte Erzeugung: Photovoltaik   * &#x60;715&#x60; - Prognostizierte Erzeugung: Sonstige   * &#x60;5097&#x60; - Prognostizierte Erzeugung: Wind und Photovoltaik   * &#x60;122&#x60; - Prognostizierte Erzeugung: Gesamt  |
- **filter_copy** | **int**| Muss dem Wert von \&quot;filter\&quot; entsprechen. (Kaputtes API-Design)  |
- **region_copy** | **str**| Muss dem Wert von \&quot;region\&quot; entsprechen. (Kaputtes API-Design)  |
- **timestamp** | **int**|  |
- **region** | **str**| Land / Regelzone / Marktgebiet:   * &#x60;DE&#x60; - Land: Deutschland   * &#x60;AT&#x60; - Land: Österreich   * &#x60;LU&#x60; - Land: Luxemburg   * &#x60;DE-LU&#x60; - Marktgebiet: DE/LU (ab 01.10.2018)   * &#x60;DE-AT-LU&#x60; - Marktgebiet: DE/AT/LU (bis 30.09.2018)   * &#x60;50Hertz&#x60; - Regelzone (DE): 50Hertz   * &#x60;Amprion&#x60;- Regelzone (DE): Amprion   * &#x60;TenneT&#x60; - Regelzone (DE): TenneT   * &#x60;TransnetBW&#x60; - Regelzone (DE): TransnetBW   * &#x60;APG&#x60; - Regelzone (AT): APG   * &#x60;Creos&#x60; - Regelzone (LU): Creos  | defaults to "DE"
- **resolution** | **str**| Auflösung der Daten:   * &#x60;hour&#x60; - Stündlich   * &#x60;quarterhour&#x60; - Viertelstündlich   * &#x60;day&#x60; - Täglich   * &#x60;week&#x60; - Wöchentlich   * &#x60;month&#x60; - Monatlich   * &#x60;year&#x60; - Jährlich  | defaults to "hour"
+ **filter** | **int**| Mögliche Filter:   * &#x60;1223&#x60; - Stromerzeugung: Braunkohle   * &#x60;1224&#x60; - Stromerzeugung: Kernenergie   * &#x60;1225&#x60; - Stromerzeugung: Wind Offshore   * &#x60;1226&#x60; - Stromerzeugung: Wasserkraft   * &#x60;1227&#x60; - Stromerzeugung: Sonstige Konventionelle   * &#x60;1228&#x60; - Stromerzeugung: Sonstige Erneuerbare   * &#x60;4066&#x60; - Stromerzeugung: Biomasse   * &#x60;4067&#x60; - Stromerzeugung: Wind Onshore   * &#x60;4068&#x60; - Stromerzeugung: Photovoltaik   * &#x60;4069&#x60; - Stromerzeugung: Steinkohle   * &#x60;4070&#x60; - Stromerzeugung: Pumpspeicher   * &#x60;4071&#x60; - Stromerzeugung: Erdgas   * &#x60;410&#x60; - Stromverbrauch: Gesamt (Netzlast)   * &#x60;4359&#x60; - Stromverbrauch: Residuallast   * &#x60;4387&#x60; - Stromverbrauch: Pumpspeicher   * &#x60;4169&#x60; - Marktpreis: Deutschland/Luxemburg   * &#x60;5078&#x60; - Marktpreis: Anrainer DE/LU   * &#x60;4996&#x60; - Marktpreis: Belgien   * &#x60;4997&#x60; - Marktpreis: Norwegen 2   * &#x60;4170&#x60; - Marktpreis: Österreich   * &#x60;252&#x60; - Marktpreis: Dänemark 1   * &#x60;253&#x60; - Marktpreis: Dänemark 2   * &#x60;254&#x60; - Marktpreis: Frankreich   * &#x60;255&#x60; - Marktpreis: Italien (Nord)   * &#x60;256&#x60; - Marktpreis: Niederlande   * &#x60;257&#x60; - Marktpreis: Polen   * &#x60;258&#x60; - Marktpreis: Polen   * &#x60;259&#x60; - Marktpreis: Schweiz   * &#x60;260&#x60; - Marktpreis: Slowenien   * &#x60;261&#x60; - Marktpreis: Tschechien   * &#x60;262&#x60; - Marktpreis: Ungarn   * &#x60;3791&#x60; - Prognostizierte Erzeugung: Offshore   * &#x60;123&#x60; - Prognostizierte Erzeugung: Onshore   * &#x60;125&#x60; - Prognostizierte Erzeugung: Photovoltaik   * &#x60;715&#x60; - Prognostizierte Erzeugung: Sonstige   * &#x60;5097&#x60; - Prognostizierte Erzeugung: Wind und Photovoltaik   * &#x60;122&#x60; - Prognostizierte Erzeugung: Gesamt  | 
+ **filter_copy** | **int**| Muss dem Wert von \&quot;filter\&quot; entsprechen. (Kaputtes API-Design)  | 
+ **region** | **str**| Land / Regelzone / Marktgebiet:   * &#x60;DE&#x60; - Land: Deutschland   * &#x60;AT&#x60; - Land: Österreich   * &#x60;LU&#x60; - Land: Luxemburg   * &#x60;DE-LU&#x60; - Marktgebiet: DE/LU (ab 01.10.2018)   * &#x60;DE-AT-LU&#x60; - Marktgebiet: DE/AT/LU (bis 30.09.2018)   * &#x60;50Hertz&#x60; - Regelzone (DE): 50Hertz   * &#x60;Amprion&#x60;- Regelzone (DE): Amprion   * &#x60;TenneT&#x60; - Regelzone (DE): TenneT   * &#x60;TransnetBW&#x60; - Regelzone (DE): TransnetBW   * &#x60;APG&#x60; - Regelzone (AT): APG   * &#x60;Creos&#x60; - Regelzone (LU): Creos  | [default to &#39;DE&#39;]
+ **region_copy** | **str**| Muss dem Wert von \&quot;region\&quot; entsprechen. (Kaputtes API-Design)  | 
+ **resolution** | **str**| Auflösung der Daten:   * &#x60;hour&#x60; - Stündlich   * &#x60;quarterhour&#x60; - Viertelstündlich   * &#x60;day&#x60; - Täglich   * &#x60;week&#x60; - Wöchentlich   * &#x60;month&#x60; - Monatlich   * &#x60;year&#x60; - Jährlich  | [default to &#39;hour&#39;]
+ **timestamp** | **int**|  | 
 
 ### Return type
 
@@ -75,9 +79,7 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-
 ### HTTP response details
-
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | OK |  -  |
@@ -86,7 +88,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **chart_data_filter_region_index_resolution_json_get**
-> Indices chart_data_filter_region_index_resolution_json_get(filter, )
+> Indices chart_data_filter_region_index_resolution_json_get(filter, region, resolution)
 
 Indizes
 
@@ -94,13 +96,14 @@ Verfügbare Timestamps für Filter, Region und Auflösung
 
 ### Example
 
-
 ```python
 import time
+import os
 from deutschland import smard
-from deutschland.smard.api import default_api
-from deutschland.smard.model.indices import Indices
+from deutschland.smard.models.indices import Indices
+from deutschland.smard.rest import ApiException
 from pprint import pprint
+
 # Defining the host is optional and defaults to https://www.smard.de/app
 # See configuration.py for a list of all supported configuration parameters.
 configuration = smard.Configuration(
@@ -109,28 +112,31 @@ configuration = smard.Configuration(
 
 
 # Enter a context with an instance of the API client
-with smard.ApiClient() as api_client:
+with smard.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = default_api.DefaultApi(api_client)
-    filter = 1223 # int | Mögliche Filter:   * `1223` - Stromerzeugung: Braunkohle   * `1224` - Stromerzeugung: Kernenergie   * `1225` - Stromerzeugung: Wind Offshore   * `1226` - Stromerzeugung: Wasserkraft   * `1227` - Stromerzeugung: Sonstige Konventionelle   * `1228` - Stromerzeugung: Sonstige Erneuerbare   * `4066` - Stromerzeugung: Biomasse   * `4067` - Stromerzeugung: Wind Onshore   * `4068` - Stromerzeugung: Photovoltaik   * `4069` - Stromerzeugung: Steinkohle   * `4070` - Stromerzeugung: Pumpspeicher   * `4071` - Stromerzeugung: Erdgas   * `410` - Stromverbrauch: Gesamt (Netzlast)   * `4359` - Stromverbrauch: Residuallast   * `4387` - Stromverbrauch: Pumpspeicher   * `4169` - Marktpreis: Deutschland/Luxemburg   * `5078` - Marktpreis: Anrainer DE/LU   * `4996` - Marktpreis: Belgien   * `4997` - Marktpreis: Norwegen 2   * `4170` - Marktpreis: Österreich   * `252` - Marktpreis: Dänemark 1   * `253` - Marktpreis: Dänemark 2   * `254` - Marktpreis: Frankreich   * `255` - Marktpreis: Italien (Nord)   * `256` - Marktpreis: Niederlande   * `257` - Marktpreis: Polen   * `258` - Marktpreis: Polen   * `259` - Marktpreis: Schweiz   * `260` - Marktpreis: Slowenien   * `261` - Marktpreis: Tschechien   * `262` - Marktpreis: Ungarn   * `3791` - Prognostizierte Erzeugung: Offshore   * `123` - Prognostizierte Erzeugung: Onshore   * `125` - Prognostizierte Erzeugung: Photovoltaik   * `715` - Prognostizierte Erzeugung: Sonstige   * `5097` - Prognostizierte Erzeugung: Wind und Photovoltaik   * `122` - Prognostizierte Erzeugung: Gesamt 
+    api_instance = smard.DefaultApi(api_client)
+    filter = 56 # int | Mögliche Filter:   * `1223` - Stromerzeugung: Braunkohle   * `1224` - Stromerzeugung: Kernenergie   * `1225` - Stromerzeugung: Wind Offshore   * `1226` - Stromerzeugung: Wasserkraft   * `1227` - Stromerzeugung: Sonstige Konventionelle   * `1228` - Stromerzeugung: Sonstige Erneuerbare   * `4066` - Stromerzeugung: Biomasse   * `4067` - Stromerzeugung: Wind Onshore   * `4068` - Stromerzeugung: Photovoltaik   * `4069` - Stromerzeugung: Steinkohle   * `4070` - Stromerzeugung: Pumpspeicher   * `4071` - Stromerzeugung: Erdgas   * `410` - Stromverbrauch: Gesamt (Netzlast)   * `4359` - Stromverbrauch: Residuallast   * `4387` - Stromverbrauch: Pumpspeicher   * `4169` - Marktpreis: Deutschland/Luxemburg   * `5078` - Marktpreis: Anrainer DE/LU   * `4996` - Marktpreis: Belgien   * `4997` - Marktpreis: Norwegen 2   * `4170` - Marktpreis: Österreich   * `252` - Marktpreis: Dänemark 1   * `253` - Marktpreis: Dänemark 2   * `254` - Marktpreis: Frankreich   * `255` - Marktpreis: Italien (Nord)   * `256` - Marktpreis: Niederlande   * `257` - Marktpreis: Polen   * `258` - Marktpreis: Polen   * `259` - Marktpreis: Schweiz   * `260` - Marktpreis: Slowenien   * `261` - Marktpreis: Tschechien   * `262` - Marktpreis: Ungarn   * `3791` - Prognostizierte Erzeugung: Offshore   * `123` - Prognostizierte Erzeugung: Onshore   * `125` - Prognostizierte Erzeugung: Photovoltaik   * `715` - Prognostizierte Erzeugung: Sonstige   * `5097` - Prognostizierte Erzeugung: Wind und Photovoltaik   * `122` - Prognostizierte Erzeugung: Gesamt 
+    region = 'DE' # str | Land / Regelzone / Marktgebiet:   * `DE` - Land: Deutschland   * `AT` - Land: Österreich   * `LU` - Land: Luxemburg   * `DE-LU` - Marktgebiet: DE/LU (ab 01.10.2018)   * `DE-AT-LU` - Marktgebiet: DE/AT/LU (bis 30.09.2018)   * `50Hertz` - Regelzone (DE): 50Hertz   * `Amprion`- Regelzone (DE): Amprion   * `TenneT` - Regelzone (DE): TenneT   * `TransnetBW` - Regelzone (DE): TransnetBW   * `APG` - Regelzone (AT): APG   * `Creos` - Regelzone (LU): Creos  (default to 'DE')
+    resolution = 'hour' # str | Auflösung der Daten:   * `hour` - Stündlich   * `quarterhour` - Viertelstündlich   * `day` - Täglich   * `week` - Wöchentlich   * `month` - Monatlich   * `year` - Jährlich  (default to 'hour')
 
-    # example passing only required values which don't have defaults set
     try:
         # Indizes
-        api_response = api_instance.chart_data_filter_region_index_resolution_json_get(filter, )
+        api_response = api_instance.chart_data_filter_region_index_resolution_json_get(filter, region, resolution)
+        print("The response of DefaultApi->chart_data_filter_region_index_resolution_json_get:\n")
         pprint(api_response)
-    except smard.ApiException as e:
+    except Exception as e:
         print("Exception when calling DefaultApi->chart_data_filter_region_index_resolution_json_get: %s\n" % e)
 ```
+
 
 
 ### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **filter** | **int**| Mögliche Filter:   * &#x60;1223&#x60; - Stromerzeugung: Braunkohle   * &#x60;1224&#x60; - Stromerzeugung: Kernenergie   * &#x60;1225&#x60; - Stromerzeugung: Wind Offshore   * &#x60;1226&#x60; - Stromerzeugung: Wasserkraft   * &#x60;1227&#x60; - Stromerzeugung: Sonstige Konventionelle   * &#x60;1228&#x60; - Stromerzeugung: Sonstige Erneuerbare   * &#x60;4066&#x60; - Stromerzeugung: Biomasse   * &#x60;4067&#x60; - Stromerzeugung: Wind Onshore   * &#x60;4068&#x60; - Stromerzeugung: Photovoltaik   * &#x60;4069&#x60; - Stromerzeugung: Steinkohle   * &#x60;4070&#x60; - Stromerzeugung: Pumpspeicher   * &#x60;4071&#x60; - Stromerzeugung: Erdgas   * &#x60;410&#x60; - Stromverbrauch: Gesamt (Netzlast)   * &#x60;4359&#x60; - Stromverbrauch: Residuallast   * &#x60;4387&#x60; - Stromverbrauch: Pumpspeicher   * &#x60;4169&#x60; - Marktpreis: Deutschland/Luxemburg   * &#x60;5078&#x60; - Marktpreis: Anrainer DE/LU   * &#x60;4996&#x60; - Marktpreis: Belgien   * &#x60;4997&#x60; - Marktpreis: Norwegen 2   * &#x60;4170&#x60; - Marktpreis: Österreich   * &#x60;252&#x60; - Marktpreis: Dänemark 1   * &#x60;253&#x60; - Marktpreis: Dänemark 2   * &#x60;254&#x60; - Marktpreis: Frankreich   * &#x60;255&#x60; - Marktpreis: Italien (Nord)   * &#x60;256&#x60; - Marktpreis: Niederlande   * &#x60;257&#x60; - Marktpreis: Polen   * &#x60;258&#x60; - Marktpreis: Polen   * &#x60;259&#x60; - Marktpreis: Schweiz   * &#x60;260&#x60; - Marktpreis: Slowenien   * &#x60;261&#x60; - Marktpreis: Tschechien   * &#x60;262&#x60; - Marktpreis: Ungarn   * &#x60;3791&#x60; - Prognostizierte Erzeugung: Offshore   * &#x60;123&#x60; - Prognostizierte Erzeugung: Onshore   * &#x60;125&#x60; - Prognostizierte Erzeugung: Photovoltaik   * &#x60;715&#x60; - Prognostizierte Erzeugung: Sonstige   * &#x60;5097&#x60; - Prognostizierte Erzeugung: Wind und Photovoltaik   * &#x60;122&#x60; - Prognostizierte Erzeugung: Gesamt  |
- **region** | **str**| Land / Regelzone / Marktgebiet:   * &#x60;DE&#x60; - Land: Deutschland   * &#x60;AT&#x60; - Land: Österreich   * &#x60;LU&#x60; - Land: Luxemburg   * &#x60;DE-LU&#x60; - Marktgebiet: DE/LU (ab 01.10.2018)   * &#x60;DE-AT-LU&#x60; - Marktgebiet: DE/AT/LU (bis 30.09.2018)   * &#x60;50Hertz&#x60; - Regelzone (DE): 50Hertz   * &#x60;Amprion&#x60;- Regelzone (DE): Amprion   * &#x60;TenneT&#x60; - Regelzone (DE): TenneT   * &#x60;TransnetBW&#x60; - Regelzone (DE): TransnetBW   * &#x60;APG&#x60; - Regelzone (AT): APG   * &#x60;Creos&#x60; - Regelzone (LU): Creos  | defaults to "DE"
- **resolution** | **str**| Auflösung der Daten:   * &#x60;hour&#x60; - Stündlich   * &#x60;quarterhour&#x60; - Viertelstündlich   * &#x60;day&#x60; - Täglich   * &#x60;week&#x60; - Wöchentlich   * &#x60;month&#x60; - Monatlich   * &#x60;year&#x60; - Jährlich  | defaults to "hour"
+ **filter** | **int**| Mögliche Filter:   * &#x60;1223&#x60; - Stromerzeugung: Braunkohle   * &#x60;1224&#x60; - Stromerzeugung: Kernenergie   * &#x60;1225&#x60; - Stromerzeugung: Wind Offshore   * &#x60;1226&#x60; - Stromerzeugung: Wasserkraft   * &#x60;1227&#x60; - Stromerzeugung: Sonstige Konventionelle   * &#x60;1228&#x60; - Stromerzeugung: Sonstige Erneuerbare   * &#x60;4066&#x60; - Stromerzeugung: Biomasse   * &#x60;4067&#x60; - Stromerzeugung: Wind Onshore   * &#x60;4068&#x60; - Stromerzeugung: Photovoltaik   * &#x60;4069&#x60; - Stromerzeugung: Steinkohle   * &#x60;4070&#x60; - Stromerzeugung: Pumpspeicher   * &#x60;4071&#x60; - Stromerzeugung: Erdgas   * &#x60;410&#x60; - Stromverbrauch: Gesamt (Netzlast)   * &#x60;4359&#x60; - Stromverbrauch: Residuallast   * &#x60;4387&#x60; - Stromverbrauch: Pumpspeicher   * &#x60;4169&#x60; - Marktpreis: Deutschland/Luxemburg   * &#x60;5078&#x60; - Marktpreis: Anrainer DE/LU   * &#x60;4996&#x60; - Marktpreis: Belgien   * &#x60;4997&#x60; - Marktpreis: Norwegen 2   * &#x60;4170&#x60; - Marktpreis: Österreich   * &#x60;252&#x60; - Marktpreis: Dänemark 1   * &#x60;253&#x60; - Marktpreis: Dänemark 2   * &#x60;254&#x60; - Marktpreis: Frankreich   * &#x60;255&#x60; - Marktpreis: Italien (Nord)   * &#x60;256&#x60; - Marktpreis: Niederlande   * &#x60;257&#x60; - Marktpreis: Polen   * &#x60;258&#x60; - Marktpreis: Polen   * &#x60;259&#x60; - Marktpreis: Schweiz   * &#x60;260&#x60; - Marktpreis: Slowenien   * &#x60;261&#x60; - Marktpreis: Tschechien   * &#x60;262&#x60; - Marktpreis: Ungarn   * &#x60;3791&#x60; - Prognostizierte Erzeugung: Offshore   * &#x60;123&#x60; - Prognostizierte Erzeugung: Onshore   * &#x60;125&#x60; - Prognostizierte Erzeugung: Photovoltaik   * &#x60;715&#x60; - Prognostizierte Erzeugung: Sonstige   * &#x60;5097&#x60; - Prognostizierte Erzeugung: Wind und Photovoltaik   * &#x60;122&#x60; - Prognostizierte Erzeugung: Gesamt  | 
+ **region** | **str**| Land / Regelzone / Marktgebiet:   * &#x60;DE&#x60; - Land: Deutschland   * &#x60;AT&#x60; - Land: Österreich   * &#x60;LU&#x60; - Land: Luxemburg   * &#x60;DE-LU&#x60; - Marktgebiet: DE/LU (ab 01.10.2018)   * &#x60;DE-AT-LU&#x60; - Marktgebiet: DE/AT/LU (bis 30.09.2018)   * &#x60;50Hertz&#x60; - Regelzone (DE): 50Hertz   * &#x60;Amprion&#x60;- Regelzone (DE): Amprion   * &#x60;TenneT&#x60; - Regelzone (DE): TenneT   * &#x60;TransnetBW&#x60; - Regelzone (DE): TransnetBW   * &#x60;APG&#x60; - Regelzone (AT): APG   * &#x60;Creos&#x60; - Regelzone (LU): Creos  | [default to &#39;DE&#39;]
+ **resolution** | **str**| Auflösung der Daten:   * &#x60;hour&#x60; - Stündlich   * &#x60;quarterhour&#x60; - Viertelstündlich   * &#x60;day&#x60; - Täglich   * &#x60;week&#x60; - Wöchentlich   * &#x60;month&#x60; - Monatlich   * &#x60;year&#x60; - Jährlich  | [default to &#39;hour&#39;]
 
 ### Return type
 
@@ -145,9 +151,7 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-
 ### HTTP response details
-
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | OK |  -  |
@@ -156,7 +160,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **table_data_filter_region_filter_copy_region_copy_quarterhour_timestamp_json_get**
-> TimeSeries2 table_data_filter_region_filter_copy_region_copy_quarterhour_timestamp_json_get(filter, filter_copy, region_copy, timestamp)
+> TimeSeries2 table_data_filter_region_filter_copy_region_copy_quarterhour_timestamp_json_get(filter, filter_copy, region, region_copy, timestamp)
 
 Zeitreihendaten
 
@@ -164,13 +168,14 @@ Zeitreihendaten nach Filter, Region und Auflösung ab Timestamp
 
 ### Example
 
-
 ```python
 import time
+import os
 from deutschland import smard
-from deutschland.smard.api import default_api
-from deutschland.smard.model.time_series2 import TimeSeries2
+from deutschland.smard.models.time_series2 import TimeSeries2
+from deutschland.smard.rest import ApiException
 from pprint import pprint
+
 # Defining the host is optional and defaults to https://www.smard.de/app
 # See configuration.py for a list of all supported configuration parameters.
 configuration = smard.Configuration(
@@ -179,33 +184,35 @@ configuration = smard.Configuration(
 
 
 # Enter a context with an instance of the API client
-with smard.ApiClient() as api_client:
+with smard.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = default_api.DefaultApi(api_client)
-    filter = 1223 # int | Mögliche Filter:   * `1223` - Stromerzeugung: Braunkohle   * `1224` - Stromerzeugung: Kernenergie   * `1225` - Stromerzeugung: Wind Offshore   * `1226` - Stromerzeugung: Wasserkraft   * `1227` - Stromerzeugung: Sonstige Konventionelle   * `1228` - Stromerzeugung: Sonstige Erneuerbare   * `4066` - Stromerzeugung: Biomasse   * `4067` - Stromerzeugung: Wind Onshore   * `4068` - Stromerzeugung: Photovoltaik   * `4069` - Stromerzeugung: Steinkohle   * `4070` - Stromerzeugung: Pumpspeicher   * `4071` - Stromerzeugung: Erdgas   * `410` - Stromverbrauch: Gesamt (Netzlast)   * `4359` - Stromverbrauch: Residuallast   * `4387` - Stromverbrauch: Pumpspeicher   * `4169` - Marktpreis: Deutschland/Luxemburg   * `5078` - Marktpreis: Anrainer DE/LU   * `4996` - Marktpreis: Belgien   * `4997` - Marktpreis: Norwegen 2   * `4170` - Marktpreis: Österreich   * `252` - Marktpreis: Dänemark 1   * `253` - Marktpreis: Dänemark 2   * `254` - Marktpreis: Frankreich   * `255` - Marktpreis: Italien (Nord)   * `256` - Marktpreis: Niederlande   * `257` - Marktpreis: Polen   * `258` - Marktpreis: Polen   * `259` - Marktpreis: Schweiz   * `260` - Marktpreis: Slowenien   * `261` - Marktpreis: Tschechien   * `262` - Marktpreis: Ungarn   * `3791` - Prognostizierte Erzeugung: Offshore   * `123` - Prognostizierte Erzeugung: Onshore   * `125` - Prognostizierte Erzeugung: Photovoltaik   * `715` - Prognostizierte Erzeugung: Sonstige   * `5097` - Prognostizierte Erzeugung: Wind und Photovoltaik   * `122` - Prognostizierte Erzeugung: Gesamt 
-    filter_copy = 1223 # int | Muss dem Wert von \"filter\" entsprechen. (Kaputtes API-Design) 
-    region_copy = "DE" # str | Muss dem Wert von \"region\" entsprechen. (Kaputtes API-Design) 
-    timestamp = 1 # int | 
+    api_instance = smard.DefaultApi(api_client)
+    filter = 56 # int | Mögliche Filter:   * `1223` - Stromerzeugung: Braunkohle   * `1224` - Stromerzeugung: Kernenergie   * `1225` - Stromerzeugung: Wind Offshore   * `1226` - Stromerzeugung: Wasserkraft   * `1227` - Stromerzeugung: Sonstige Konventionelle   * `1228` - Stromerzeugung: Sonstige Erneuerbare   * `4066` - Stromerzeugung: Biomasse   * `4067` - Stromerzeugung: Wind Onshore   * `4068` - Stromerzeugung: Photovoltaik   * `4069` - Stromerzeugung: Steinkohle   * `4070` - Stromerzeugung: Pumpspeicher   * `4071` - Stromerzeugung: Erdgas   * `410` - Stromverbrauch: Gesamt (Netzlast)   * `4359` - Stromverbrauch: Residuallast   * `4387` - Stromverbrauch: Pumpspeicher   * `4169` - Marktpreis: Deutschland/Luxemburg   * `5078` - Marktpreis: Anrainer DE/LU   * `4996` - Marktpreis: Belgien   * `4997` - Marktpreis: Norwegen 2   * `4170` - Marktpreis: Österreich   * `252` - Marktpreis: Dänemark 1   * `253` - Marktpreis: Dänemark 2   * `254` - Marktpreis: Frankreich   * `255` - Marktpreis: Italien (Nord)   * `256` - Marktpreis: Niederlande   * `257` - Marktpreis: Polen   * `258` - Marktpreis: Polen   * `259` - Marktpreis: Schweiz   * `260` - Marktpreis: Slowenien   * `261` - Marktpreis: Tschechien   * `262` - Marktpreis: Ungarn   * `3791` - Prognostizierte Erzeugung: Offshore   * `123` - Prognostizierte Erzeugung: Onshore   * `125` - Prognostizierte Erzeugung: Photovoltaik   * `715` - Prognostizierte Erzeugung: Sonstige   * `5097` - Prognostizierte Erzeugung: Wind und Photovoltaik   * `122` - Prognostizierte Erzeugung: Gesamt 
+    filter_copy = 56 # int | Muss dem Wert von \"filter\" entsprechen. (Kaputtes API-Design) 
+    region = 'DE' # str | Land / Regelzone / Marktgebiet:   * `DE` - Land: Deutschland   * `AT` - Land: Österreich   * `LU` - Land: Luxemburg   * `DE-LU` - Marktgebiet: DE/LU (ab 01.10.2018)   * `DE-AT-LU` - Marktgebiet: DE/AT/LU (bis 30.09.2018)   * `50Hertz` - Regelzone (DE): 50Hertz   * `Amprion`- Regelzone (DE): Amprion   * `TenneT` - Regelzone (DE): TenneT   * `TransnetBW` - Regelzone (DE): TransnetBW   * `APG` - Regelzone (AT): APG   * `Creos` - Regelzone (LU): Creos  (default to 'DE')
+    region_copy = 'region_copy_example' # str | Muss dem Wert von \"region\" entsprechen. (Kaputtes API-Design) 
+    timestamp = 56 # int | 
 
-    # example passing only required values which don't have defaults set
     try:
         # Zeitreihendaten
-        api_response = api_instance.table_data_filter_region_filter_copy_region_copy_quarterhour_timestamp_json_get(filter, filter_copy, region_copy, timestamp)
+        api_response = api_instance.table_data_filter_region_filter_copy_region_copy_quarterhour_timestamp_json_get(filter, filter_copy, region, region_copy, timestamp)
+        print("The response of DefaultApi->table_data_filter_region_filter_copy_region_copy_quarterhour_timestamp_json_get:\n")
         pprint(api_response)
-    except smard.ApiException as e:
+    except Exception as e:
         print("Exception when calling DefaultApi->table_data_filter_region_filter_copy_region_copy_quarterhour_timestamp_json_get: %s\n" % e)
 ```
+
 
 
 ### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **filter** | **int**| Mögliche Filter:   * &#x60;1223&#x60; - Stromerzeugung: Braunkohle   * &#x60;1224&#x60; - Stromerzeugung: Kernenergie   * &#x60;1225&#x60; - Stromerzeugung: Wind Offshore   * &#x60;1226&#x60; - Stromerzeugung: Wasserkraft   * &#x60;1227&#x60; - Stromerzeugung: Sonstige Konventionelle   * &#x60;1228&#x60; - Stromerzeugung: Sonstige Erneuerbare   * &#x60;4066&#x60; - Stromerzeugung: Biomasse   * &#x60;4067&#x60; - Stromerzeugung: Wind Onshore   * &#x60;4068&#x60; - Stromerzeugung: Photovoltaik   * &#x60;4069&#x60; - Stromerzeugung: Steinkohle   * &#x60;4070&#x60; - Stromerzeugung: Pumpspeicher   * &#x60;4071&#x60; - Stromerzeugung: Erdgas   * &#x60;410&#x60; - Stromverbrauch: Gesamt (Netzlast)   * &#x60;4359&#x60; - Stromverbrauch: Residuallast   * &#x60;4387&#x60; - Stromverbrauch: Pumpspeicher   * &#x60;4169&#x60; - Marktpreis: Deutschland/Luxemburg   * &#x60;5078&#x60; - Marktpreis: Anrainer DE/LU   * &#x60;4996&#x60; - Marktpreis: Belgien   * &#x60;4997&#x60; - Marktpreis: Norwegen 2   * &#x60;4170&#x60; - Marktpreis: Österreich   * &#x60;252&#x60; - Marktpreis: Dänemark 1   * &#x60;253&#x60; - Marktpreis: Dänemark 2   * &#x60;254&#x60; - Marktpreis: Frankreich   * &#x60;255&#x60; - Marktpreis: Italien (Nord)   * &#x60;256&#x60; - Marktpreis: Niederlande   * &#x60;257&#x60; - Marktpreis: Polen   * &#x60;258&#x60; - Marktpreis: Polen   * &#x60;259&#x60; - Marktpreis: Schweiz   * &#x60;260&#x60; - Marktpreis: Slowenien   * &#x60;261&#x60; - Marktpreis: Tschechien   * &#x60;262&#x60; - Marktpreis: Ungarn   * &#x60;3791&#x60; - Prognostizierte Erzeugung: Offshore   * &#x60;123&#x60; - Prognostizierte Erzeugung: Onshore   * &#x60;125&#x60; - Prognostizierte Erzeugung: Photovoltaik   * &#x60;715&#x60; - Prognostizierte Erzeugung: Sonstige   * &#x60;5097&#x60; - Prognostizierte Erzeugung: Wind und Photovoltaik   * &#x60;122&#x60; - Prognostizierte Erzeugung: Gesamt  |
- **filter_copy** | **int**| Muss dem Wert von \&quot;filter\&quot; entsprechen. (Kaputtes API-Design)  |
- **region_copy** | **str**| Muss dem Wert von \&quot;region\&quot; entsprechen. (Kaputtes API-Design)  |
- **timestamp** | **int**|  |
- **region** | **str**| Land / Regelzone / Marktgebiet:   * &#x60;DE&#x60; - Land: Deutschland   * &#x60;AT&#x60; - Land: Österreich   * &#x60;LU&#x60; - Land: Luxemburg   * &#x60;DE-LU&#x60; - Marktgebiet: DE/LU (ab 01.10.2018)   * &#x60;DE-AT-LU&#x60; - Marktgebiet: DE/AT/LU (bis 30.09.2018)   * &#x60;50Hertz&#x60; - Regelzone (DE): 50Hertz   * &#x60;Amprion&#x60;- Regelzone (DE): Amprion   * &#x60;TenneT&#x60; - Regelzone (DE): TenneT   * &#x60;TransnetBW&#x60; - Regelzone (DE): TransnetBW   * &#x60;APG&#x60; - Regelzone (AT): APG   * &#x60;Creos&#x60; - Regelzone (LU): Creos  | defaults to "DE"
+ **filter** | **int**| Mögliche Filter:   * &#x60;1223&#x60; - Stromerzeugung: Braunkohle   * &#x60;1224&#x60; - Stromerzeugung: Kernenergie   * &#x60;1225&#x60; - Stromerzeugung: Wind Offshore   * &#x60;1226&#x60; - Stromerzeugung: Wasserkraft   * &#x60;1227&#x60; - Stromerzeugung: Sonstige Konventionelle   * &#x60;1228&#x60; - Stromerzeugung: Sonstige Erneuerbare   * &#x60;4066&#x60; - Stromerzeugung: Biomasse   * &#x60;4067&#x60; - Stromerzeugung: Wind Onshore   * &#x60;4068&#x60; - Stromerzeugung: Photovoltaik   * &#x60;4069&#x60; - Stromerzeugung: Steinkohle   * &#x60;4070&#x60; - Stromerzeugung: Pumpspeicher   * &#x60;4071&#x60; - Stromerzeugung: Erdgas   * &#x60;410&#x60; - Stromverbrauch: Gesamt (Netzlast)   * &#x60;4359&#x60; - Stromverbrauch: Residuallast   * &#x60;4387&#x60; - Stromverbrauch: Pumpspeicher   * &#x60;4169&#x60; - Marktpreis: Deutschland/Luxemburg   * &#x60;5078&#x60; - Marktpreis: Anrainer DE/LU   * &#x60;4996&#x60; - Marktpreis: Belgien   * &#x60;4997&#x60; - Marktpreis: Norwegen 2   * &#x60;4170&#x60; - Marktpreis: Österreich   * &#x60;252&#x60; - Marktpreis: Dänemark 1   * &#x60;253&#x60; - Marktpreis: Dänemark 2   * &#x60;254&#x60; - Marktpreis: Frankreich   * &#x60;255&#x60; - Marktpreis: Italien (Nord)   * &#x60;256&#x60; - Marktpreis: Niederlande   * &#x60;257&#x60; - Marktpreis: Polen   * &#x60;258&#x60; - Marktpreis: Polen   * &#x60;259&#x60; - Marktpreis: Schweiz   * &#x60;260&#x60; - Marktpreis: Slowenien   * &#x60;261&#x60; - Marktpreis: Tschechien   * &#x60;262&#x60; - Marktpreis: Ungarn   * &#x60;3791&#x60; - Prognostizierte Erzeugung: Offshore   * &#x60;123&#x60; - Prognostizierte Erzeugung: Onshore   * &#x60;125&#x60; - Prognostizierte Erzeugung: Photovoltaik   * &#x60;715&#x60; - Prognostizierte Erzeugung: Sonstige   * &#x60;5097&#x60; - Prognostizierte Erzeugung: Wind und Photovoltaik   * &#x60;122&#x60; - Prognostizierte Erzeugung: Gesamt  | 
+ **filter_copy** | **int**| Muss dem Wert von \&quot;filter\&quot; entsprechen. (Kaputtes API-Design)  | 
+ **region** | **str**| Land / Regelzone / Marktgebiet:   * &#x60;DE&#x60; - Land: Deutschland   * &#x60;AT&#x60; - Land: Österreich   * &#x60;LU&#x60; - Land: Luxemburg   * &#x60;DE-LU&#x60; - Marktgebiet: DE/LU (ab 01.10.2018)   * &#x60;DE-AT-LU&#x60; - Marktgebiet: DE/AT/LU (bis 30.09.2018)   * &#x60;50Hertz&#x60; - Regelzone (DE): 50Hertz   * &#x60;Amprion&#x60;- Regelzone (DE): Amprion   * &#x60;TenneT&#x60; - Regelzone (DE): TenneT   * &#x60;TransnetBW&#x60; - Regelzone (DE): TransnetBW   * &#x60;APG&#x60; - Regelzone (AT): APG   * &#x60;Creos&#x60; - Regelzone (LU): Creos  | [default to &#39;DE&#39;]
+ **region_copy** | **str**| Muss dem Wert von \&quot;region\&quot; entsprechen. (Kaputtes API-Design)  | 
+ **timestamp** | **int**|  | 
 
 ### Return type
 
@@ -220,9 +227,7 @@ No authorization required
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-
 ### HTTP response details
-
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | OK |  -  |
