@@ -1,4 +1,4 @@
-templateDir: deutschland_templates # For local use: ./local/deutschland_templates
+templateDir: ./local/deutschland_templates
 additionalProperties:
   packageName: "smard"
   infoName: "BundesAPI"
